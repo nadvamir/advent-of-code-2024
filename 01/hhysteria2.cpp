@@ -4,16 +4,21 @@
 #include <cassert>
 #include <numeric>
 #include <algorithm>
+#include <ranges>
 #include <unordered_map>
 
 std::pair<std::vector<int64_t>, std::vector<int64_t>> read_input_vectors(const std::vector<std::string>& input) {
-    std::vector<int64_t> left, right;
-    left.reserve(input.size());
-    right.reserve(input.size());
-    for (const auto& line : input) {
+    auto parse_line = [](const std::string& line) {
         int64_t a, b;
         std::istringstream is(line);
         is >> a >> b;
+        return std::make_pair(a, b);
+    };
+
+    std::vector<int64_t> left, right;
+    left.reserve(input.size());
+    right.reserve(input.size());
+    for (const auto [a, b] : input | std::views::transform(parse_line)) {
         left.push_back(a);
         right.push_back(b);
     }
@@ -64,7 +69,14 @@ void test() {
 
 void run() {
     const auto input = read_input(std::cin);
+
+    using namespace std::chrono;
+    const auto start_ts = high_resolution_clock::now();
+
     std::cout << solve(input) << "\n";
+    
+    const auto end_ts = high_resolution_clock::now();
+    std::cout << "Elapsed time: " << duration_cast<microseconds>(end_ts - start_ts).count() << "us\n";
 }
 
 int main() {

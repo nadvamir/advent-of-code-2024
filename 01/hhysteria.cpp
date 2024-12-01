@@ -3,15 +3,20 @@
 #include <string>
 #include <cassert>
 #include <algorithm>
+#include <ranges>
 
 std::pair<std::vector<int>, std::vector<int>> read_input_vectors(const std::vector<std::string>& input) {
+    auto parse_line = [](const std::string& line) {
+        int64_t a, b;
+        std::istringstream is(line);
+        is >> a >> b;
+        return std::make_pair(a, b);
+    };
+
     std::vector<int> left, right;
     left.reserve(input.size());
     right.reserve(input.size());
-    for (const auto& line : input) {
-        int a, b;
-        std::istringstream is(line);
-        is >> a >> b;
+    for (const auto [a, b] : input | std::views::transform(parse_line)) {
         left.push_back(a);
         right.push_back(b);
     }
@@ -20,8 +25,8 @@ std::pair<std::vector<int>, std::vector<int>> read_input_vectors(const std::vect
 
 int solve(const std::vector<std::string>& input) {
     auto [left, right] = read_input_vectors(input);
-    sort(begin(left), end(left));
-    sort(begin(right), end(right));
+    std::ranges::sort(left);
+    std::ranges::sort(right);
 
     int result = 0;
     for (size_t i = 0; i < left.size(); ++i) {
@@ -44,8 +49,7 @@ std::vector<std::string> read_input(std::istream& is) {
 }
 
 void test() {
-    const std::string input_text = R"_(
-3   4
+    const std::string input_text = R"_(3   4
 4   3
 2   5
 1   3
@@ -59,7 +63,14 @@ void test() {
 
 void run() {
     const auto input = read_input(std::cin);
+
+    using namespace std::chrono;
+    const auto start_ts = high_resolution_clock::now();
+
     std::cout << solve(input) << "\n";
+    
+    const auto end_ts = high_resolution_clock::now();
+    std::cout << "Elapsed time: " << duration_cast<microseconds>(end_ts - start_ts).count() << "us\n";
 }
 
 int main() {
